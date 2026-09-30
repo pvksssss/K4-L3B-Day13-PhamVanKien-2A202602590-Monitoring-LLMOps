@@ -29,11 +29,14 @@ Có thể dùng `.txt` cho output của tests/validators. Có thể tách dashbo
 - `04-structured-log.txt`: hai event JSON thật cho `req-a11ce404`.
 - `05-pii-redaction.txt`: input PII giả và hai event JSON đã scrub cho `req-a11ce405`.
 - `06-trace-list.png`, `07-trace-waterfall.png`, `08b-generation.png`, `09-prompt-versions.png`: ảnh Langfuse đã được học viên cung cấp. Waterfall/generation là ảnh CP2 sample.
+- `07-trace-waterfall.jpg`, `08a-root-metadata.jpg`, `08b-generation.jpg`, `08b-generation-preview.jpg`: ảnh mới từ trace `6d434500bee8ad07aa474e87b37043ba`, khớp log `req-a11ce404`. Generation có preview Input/Output trong Langfuse.
+- `10a-prompt-promoted.jpg`: ảnh v2 đang mang `production`; phiên điều khiển trình duyệt dừng trước bước rollback mới. Audit text ghi nhận lần promote/rollback CP2 trước đó, không phải trạng thái sau ảnh này.
+- `14-incident-trace.jpg`: trace CP3 với `req-44cd714c`, span retrieval 2,50 giây.
 - `07-trace-waterfall-audit.txt`, `08a-root-metadata.txt`, `08b-generation-audit.txt`: CLI audit cho trace mới khớp `req-a11ce404` (`6d434500bee8ad07aa474e87b37043ba`).
 - `10-prompt-promote-rollback.txt`, `11-dashboard-overview.txt`, `12-incident-metric.txt`, `13-incident-log.txt`, `14-incident-trace.txt`, `15-cp3-challenge-investigation.txt`: output/audit dạng text.
-- Chưa có ảnh `08a`, `10a`, `10b`, `11`, `12` và `14` đúng như rubric yêu cầu. Dashboard hiện chưa có time-series latency panel; evidence metric hiện ghi rõ các số liệu và giới hạn, không giả làm ảnh chụp.
+- Chưa có ảnh `10b`, `11` và `12` đúng như rubric yêu cầu. Dashboard hiện chưa có time-series latency panel; evidence metric ghi rõ các số liệu và giới hạn, không giả làm ảnh chụp.
 
-Ảnh `04`, `05`, `13` lấy từ terminal hoặc `data/logs.jsonl`. Ảnh `06`–`10`, `14` lấy từ project Langfuse cá nhân `day13-k4-l3b-<MSSV>` và nên nhìn thấy tên project. Không mở/chụp trang API Keys.
+Ảnh `04`, `05`, `13` lấy từ terminal hoặc `data/logs.jsonl`. Ảnh `06`–`10`, `14` lấy từ project Langfuse cá nhân `day13-k4-l3b-2A202602590` và nên nhìn thấy tên project. Không mở/chụp trang API Keys.
 
 Từ `submission/REPORT.md`, dẫn ảnh bằng đường dẫn tương đối:
 

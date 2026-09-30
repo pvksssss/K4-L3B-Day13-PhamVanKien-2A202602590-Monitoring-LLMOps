@@ -7,10 +7,10 @@
 - **Họ và tên:**
 - **MSSV:**
 - **Lớp:** K4-L3B
-- **Repository URL:**
+- **Repository URL:** https://github.com/pvksssss/K4-L3B-Day13-PhamVanKien-2A202602590-Monitoring-LLMOps
 - **Commit SHA source đã kiểm thử:** `564924d` (commit follow-up chỉ thêm evidence và cập nhật report)
 - **Challenge ID:**
-- **Tên project Langfuse cá nhân:** `day13-k4-l3b-<MSSV>`
+- **Tên project Langfuse cá nhân:** `day13-k4-l3b-2A202602590`
 
 ## 2. Evidence index
 
@@ -24,15 +24,15 @@
 | Structured log (`correlation_id=req-a11ce404`) | `evidence/04-structured-log.txt` |
 | PII redaction (`correlation_id=req-a11ce405`) | `evidence/05-pii-redaction.txt` |
 | Trace list | `evidence/06-trace-list.png` |
-| Trace tree screenshot (CP2 sample) and matching request-04 trace audit | `evidence/07-trace-waterfall.png`, `evidence/07-trace-waterfall-audit.txt` |
-| Root metadata audit for request 04 (text; screenshot missing) | `evidence/08a-root-metadata.txt` |
-| Generation screenshot (CP2 sample) and matching request-04 audit | `evidence/08b-generation.png`, `evidence/08b-generation-audit.txt` |
+| Trace tree for request 04 (`req-a11ce404`) | `evidence/07-trace-waterfall.jpg`, `evidence/07-trace-waterfall-audit.txt` |
+| Root metadata for request 04 | `evidence/08a-root-metadata.jpg`, `evidence/08a-root-metadata.txt` |
+| Generation for request 04 | `evidence/08b-generation.jpg`, `evidence/08b-generation-preview.jpg`, `evidence/08b-generation-audit.txt` |
 | Prompt versions | `evidence/09-prompt-versions.png` |
-| Promote/rollback trace IDs (text; both screenshots missing) | `evidence/10-prompt-promote-rollback.txt` |
+| Promote v2 screenshot and earlier promote/rollback trace audit | `evidence/10a-prompt-promoted.jpg`, `evidence/10-prompt-promote-rollback.txt` |
 | Dashboard overview (live UI text capture; PNG missing) | `evidence/11-dashboard-overview.txt` |
 | Incident metric (text; dashboard time series screenshot missing) | `evidence/12-incident-metric.txt` |
 | Incident log | `evidence/13-incident-log.txt` |
-| Incident trace (text audit; screenshot missing) | `evidence/14-incident-trace.txt` |
+| Incident trace (slow retrieval and matching `req-44cd714c`) | `evidence/14-incident-trace.jpg`, `evidence/14-incident-trace.txt` |
 | Full CP3 investigation | `evidence/15-cp3-challenge-investigation.txt` |
 
 ## 3. Kết quả kỹ thuật
@@ -60,10 +60,10 @@
 - **Cấu trúc root/retrieval/generation observations:** trace `day13-agent-request` có root observation `lab-agent-run` (AGENT), cùng hai child `retriever.search` (RETRIEVER) và `llm.generate` (GENERATION); sample trace đã kiểm tra có input/output preview scrub, model, prompt version, token usage, estimated cost và correlation ID.
 - **Cách nối trace với log:** `correlationId` trong trace metadata trùng `correlation_id` trong JSONL.
 - **Prompt name:** `day13-chat`.
-- **Version/label baseline:** version 1, labels `baseline` và `production` sau rollback.
-- **Version/label candidate:** version 2, label `candidate`; đã thử gán `production` rồi rollback.
+- **Version/label baseline:** version 1, label `baseline`. Audit CP2 ghi nhận một lần rollback đã đưa `production` về v1.
+- **Version/label candidate:** version 2, label `candidate`. Ảnh mới `10a-prompt-promoted.jpg` ghi nhận lần promote tiếp theo đưa `production` sang v2; phiên Computer Use bị dừng trước khi rollback lần này, nên trạng thái Langfuse cuối cùng đã quan sát là v2 `production`.
 - **Trace ID của baseline/candidate/promote/rollback:** `1cb81f87d5f8cdf8a72e94e17bcd0ef8` / `c3a4ebc7b14e2bc70f4d4de113a3f0ee` / `10f1e751653c9efad7fc86bfe7bcf3e3` / `e89c0c5a4bf91ee8b3c9e8dfd790bc5a`. Correlation IDs và version đối chiếu tại `evidence/06-langfuse-trace-audit-cp2.txt`.
-- **Cách promote và rollback `production`:** gán label `production` cho version 2, tạo trace xác nhận promptVersion 2; chuyển label về version 1, khởi động client mới để tránh prompt cache cũ và xác nhận trace rollback promptVersion 1.
+- **Cách promote và rollback `production` trong lần CP2 trước:** gán label `production` cho version 2, tạo trace xác nhận promptVersion 2; chuyển label về version 1, khởi động client mới để tránh prompt cache cũ và xác nhận trace rollback promptVersion 1. Lần promote để chụp ảnh 10a sau đó chưa được rollback.
 
 ## 6. Dashboard, SLO và alerts
 
@@ -99,7 +99,7 @@ Challenge file chính thức được giữ local, không commit/push. Báo cáo
 - **Cách hiểu luồng Metrics → Logs → Traces:**
 - **Vai trò của prompt version, token/cost, SLO hoặc rollback trong vận hành LLM:**
 - **Điều quan trọng nhất đã học:**
-- **Hạn chế hoặc phần chưa hoàn thành, nếu có:** Ảnh 06, 07, 08b và 09 lấy từ ảnh Langfuse đã cung cấp; các ảnh cho thấy tài khoản cá nhân nhưng bạn đã xác nhận có thể dùng ảnh cũ. Ảnh waterfall và generation là CP2 sample, không trùng trace request 04; trace đúng đã được kiểm tra bằng CLI và ghi tại `07-trace-waterfall-audit.txt`/`08b-generation-audit.txt`. Chưa có ảnh root metadata 08a, hai trạng thái promote/rollback 10a/10b, dashboard PNG 11, dashboard incident PNG 12, hoặc trace CP3 14. Dashboard runtime, các audit và incident metric hiện có ở dạng text. Theo lựa chọn của học viên, không thay đổi dashboard; latency vẫn là số tổng hợp và chưa có biểu đồ theo thời gian để thể hiện baseline và incident cùng trục.
+- **Hạn chế hoặc phần chưa hoàn thành, nếu có:** Ảnh `06-trace-list.png`, `07-trace-waterfall.png`, `08b-generation.png` và `09-prompt-versions.png` do học viên cung cấp trước đó; ảnh 07/08b PNG là CP2 sample. Ảnh JPG mới 07/08a/08b khớp request `req-a11ce404`; ảnh 14 khớp log CP3 `req-44cd714c` và cho thấy retrieval 2,50 giây. Ảnh 10a ghi nhận v2 `production`, nhưng chưa có ảnh 10b sau rollback lần promote này; trạng thái cuối quan sát được vẫn là v2 `production`. Dashboard 11 và incident metric 12 chỉ có text, chưa có PNG. Theo lựa chọn của học viên, không thay đổi dashboard; latency vẫn là số tổng hợp và chưa có biểu đồ theo thời gian thể hiện baseline và incident cùng trục. Generation trong Langfuse hiển thị `prompt_preview`/`answer_preview`, nên ảnh 08b không đáp ứng tiêu chí Input/Output trống.
 
 ## 9. Checklist trước khi nộp
 
