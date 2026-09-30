@@ -18,11 +18,11 @@
 
 | Evidence | Đường dẫn |
 |---|---|
-| Pytest cuối | `evidence/01-pytest.png` |
-| Log validator | `evidence/02-log-validator.png` |
+| Pytest cuối | `evidence/01-pytest-cp1.txt` |
+| Log validator | `evidence/02-log-validator-cp1.txt` |
 | Dashboard validator | `evidence/03-dashboard-validator.png` |
-| Structured log | `evidence/04-structured-log.png` |
-| PII redaction | `evidence/05-pii-redaction.png` |
+| Structured log | `evidence/04-structured-log-cp1.txt` |
+| PII redaction | `evidence/05-pii-redaction-cp1.txt` |
 | Trace list | `evidence/06-trace-list.png` |
 | Trace waterfall | `evidence/07-trace-waterfall.png` |
 | Trace metadata | `evidence/08-trace-metadata.png` |
@@ -37,20 +37,20 @@
 
 | Nội dung | Baseline | Kết quả cuối | Nhận xét |
 |---|---|---|---|
-| `validate_logs.py` | | | |
+| `validate_logs.py` | Chưa ghi nhận | **100/100** | 20 records, 10 correlation IDs, thiếu field: 0, PII leak: 0 |
 | `validate_dashboard.py` | | | |
-| `pytest` | | | |
+| `pytest` | Chưa ghi nhận | **26 passed** | Chạy trên Python 3.13.15 |
 | Số traces hợp lệ | | | |
-| Số PII leak | | | |
+| Số PII leak | Chưa ghi nhận | **0** | Theo log validator sau CP1 |
 | Latency P95 / TTFT P95 | | | |
 | Retrieval success rate | | | |
 
 ## 4. Logging và PII
 
-- **Cách tạo/nhận và truyền correlation ID:**
-- **Các metadata được ghi vào structured log:**
-- **Cách bảo đảm PII được scrub trước khi ghi:**
-- **Cách kiểm chứng kết quả:**
+- **Cách tạo/nhận và truyền correlation ID:** Middleware chấp nhận `x-request-id` đúng dạng `req-<8 ký tự hex>`, chuẩn hóa chữ thường; nếu thiếu hoặc sai định dạng thì sinh ID mới. ID được bind vào structlog contextvars, đưa vào response header `x-request-id`, `x-response-time-ms` và body `correlation_id`.
+- **Các metadata được ghi vào structured log:** `correlation_id`, `user_id_hash` (SHA-256 rút gọn 12 ký tự), `session_id`, `feature`, `model`, `env`, event, timestamp và level.
+- **Cách bảo đảm PII được scrub trước khi ghi:** Structlog chạy processor đệ quy trên mọi giá trị chuỗi trong dict/list trước JSONL writer; pattern che email, điện thoại Việt Nam, CCCD 12 số và thẻ thanh toán.
+- **Cách kiểm chứng kết quả:** `python -m pytest -q` — 26 passed; `python scripts/validate_logs.py` — 100/100, 10 correlation IDs, 0 field thiếu, 0 PII leak. Log mẫu đã scrub ở `evidence/04-structured-log-cp1.txt` và `evidence/05-pii-redaction-cp1.txt`.
 
 ## 5. Tracing và prompt versioning
 
