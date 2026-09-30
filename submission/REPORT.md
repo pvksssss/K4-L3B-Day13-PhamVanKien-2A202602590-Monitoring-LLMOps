@@ -24,12 +24,8 @@
 | Structured log | `evidence/04-structured-log-cp1.txt` |
 | PII redaction | `evidence/05-pii-redaction-cp1.txt` |
 | Trace list, hierarchy, prompt rollback IDs | `evidence/06-langfuse-trace-audit-cp2.txt` |
-| Trace waterfall | `evidence/11-trace-waterfall-cp2.png` |
-| Sessions và users | `evidence/12-sessions-cp2.png`, `evidence/13-users-cp2.png` |
-| Prompt versions / rollback | `evidence/14-prompt-rollback-cp2.png` |
-| Prompt versions / rollback screenshots | Chờ người dùng đồng ý chụp ảnh |
 | Dashboard runtime | `evidence/10-dashboard-runtime-cp2.txt` |
-| CP3 incident metric/log/trace | Sẽ thực hiện sau checkpoint CP2 từ `config/challenge.json` |
+| CP3 incident metric/log/trace | `evidence/15-cp3-challenge-investigation.txt` |
 
 ## 3. Kết quả kỹ thuật
 
@@ -72,16 +68,16 @@
 
 ## 7. Điều tra challenge
 
-Challenge chính thức đã có tại `config/challenge.json`. Phần điều tra CP3 được thực hiện sau checkpoint CP2; challenge file được giữ nguyên theo hướng dẫn repository.
+Challenge file chính thức được giữ local, không commit/push. Báo cáo và số liệu đầy đủ nằm trong [evidence/15-cp3-challenge-investigation.txt](evidence/15-cp3-challenge-investigation.txt).
 
-- **Challenge ID:**
-- **Khoảng thời gian điều tra:**
-- **Triệu chứng từ metrics:**
-- **Log line và correlation ID liên quan:**
-- **Trace ID và span gây ảnh hưởng:**
-- **Root cause:**
-- **Fix action:**
-- **Preventive measure:**
+- **Challenge ID:** `day13-k4-l3b-monitoring-llmops-v1`
+- **Khoảng thời gian điều tra:** 2026-09-30 05:18:13Z–05:18:28Z (12:18:13–12:18:28 Asia/Ho_Chi_Minh)
+- **Triệu chứng từ metrics:** 5/5 request vượt 2000 ms; P50 2652 ms, P95 3451 ms.
+- **Log line và correlation ID liên quan:** `response_sent`, `req-44cd714c`, 3451 ms; log và các ID khác trong evidence CP3.
+- **Trace ID và span gây ảnh hưởng:** `2e9821ffc0b22941f04c53a1a9f5ac6d`, `retriever.search` span `aac647478c39fd4e`, 2501 ms.
+- **Root cause:** Incident `rag_slow` chèn `time.sleep(2.5)` vào retrieval; generation khoảng 152 ms.
+- **Fix action:** Tắt incident bằng `python scripts/inject_incident.py --disable`; request xác minh sau đó hoàn tất trong 152 ms.
+- **Preventive measure:** Giữ HighLatencyP95 >3000 ms / 5 phút và runbook metrics → logs → traces; theo correlation ID để so thời lượng retrieval với generation.
 
 > Gợi ý cách viết ngắn, không thay cho evidence thực tế: "Metric cho thấy `[latency/error/cost/quality]` bất thường trong `[khoảng thời gian]`. Log line `[event]` có `correlation_id=[...]` đại diện cho request bị ảnh hưởng. Trace cùng `correlation_id` cho thấy span `[retrieval/generation/prompt/tool]` có dấu hiệu `[chậm/lỗi/token tăng]`. Root cause là `[nguyên nhân suy ra từ evidence]`. Fix action là `[hành động khôi phục]`; preventive measure là `[alert/runbook/test/guardrail để ngăn tái diễn]`."
 
@@ -93,7 +89,7 @@ Challenge chính thức đã có tại `config/challenge.json`. Phần điều t
 - **Cách hiểu luồng Metrics → Logs → Traces:**
 - **Vai trò của prompt version, token/cost, SLO hoặc rollback trong vận hành LLM:**
 - **Điều quan trọng nhất đã học:**
-- **Hạn chế hoặc phần chưa hoàn thành, nếu có:** Dashboard được kiểm chứng qua AppTest và runtime evidence dạng text; ảnh trace waterfall, sessions/users và prompt rollback do người dùng cung cấp. Ảnh dashboard chưa được cung cấp.
+- **Hạn chế hoặc phần chưa hoàn thành, nếu có:** Dashboard runtime và Langfuse trace/prompt audit có evidence dạng text; ảnh dashboard chưa có trong evidence.
 
 ## 9. Checklist trước khi nộp
 

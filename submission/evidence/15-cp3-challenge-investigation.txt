@@ -1,0 +1,47 @@
+CP3 challenge investigation evidence
+===================================
+
+Challenge: day13-k4-l3b-monitoring-llmops-v1
+Cohort: K4
+Incident: rag_slow
+Affected feature: monitoring
+Challenge latency threshold: 2000 ms
+Official queries: 5, processed in deterministic seeded order
+Incident window (UTC): 2026-09-30 05:18:13Z through 05:18:28Z
+
+METRIC
+------
+Successful challenge responses: 5/5
+Internal application latencies (ms): 3451, 2652, 2652, 2652, 2652
+P50: 2652 ms; P95 (nearest-rank, 5 samples): 3451 ms
+Requests over challenge threshold: 5/5
+The observed P95 also exceeds the configured 3000 ms latency alert threshold. The run lasted about 15 seconds, so it demonstrates the symptom but not the alert's required 5-minute duration.
+
+METRIC -> LOG -> TRACE CORRELATION
+----------------------------------
+Correlation ID | Session | Response latency | Trace ID | Retriever span ID | Retriever duration
+req-44cd714c | k4-l3b-challenge-s02 | 3451 ms | 2e9821ffc0b22941f04c53a1a9f5ac6d | aac647478c39fd4e | 2501 ms
+req-989d78e2 | k4-l3b-challenge-s04 | 2652 ms | 94080d907f50bdd60f4cd2e2b12a7062 | d0a2434b7360951d | 2501 ms
+req-a22bae0e | k4-l3b-challenge-s01 | 2652 ms | 4f2fb3a1df3051988f38a7e120fcd6ee | c502c2ad00f7e867 | 2501 ms
+req-f12917ea | k4-l3b-challenge-s03 | 2652 ms | 2334fc5c414c855cb355c2cb26f8056e | cf1d422bbca30373 | 2501 ms
+req-5189dc36 | k4-l3b-challenge-s05 | 2652 ms | e7f1ad90b4884b604d468f598e32f465 | 50f0f94024d5f08d | 2500 ms
+
+Representative local log record (scrubbed structured JSON fields):
+{"ts":"2026-09-30T05:18:17.509285Z","event":"response_sent","correlation_id":"req-44cd714c","session_id":"k4-l3b-challenge-s02","feature":"monitoring","latency_ms":3451,"ttft_ms":50,"tool_name":"retrieval","tool_success":true}
+
+Representative Langfuse trace (same correlation ID):
+Root observation lab-agent-run (AGENT); child retriever.search (RETRIEVER) duration 2501 ms; child llm.generate (GENERATION) duration 152 ms. Prompt day13-chat v1, source langfuse. Root, retrieval, and generation share the trace; the retriever span is the dominant latency.
+
+ROOT CAUSE
+----------
+The released rag_slow incident sets STATE["rag_slow"] in app/incidents.py. While enabled, app/mock_rag.py::retrieve calls time.sleep(2.5). Langfuse independently measured 2500-2501 ms for all five retrieval spans, while generation took about 151-152 ms. This isolates the injected retrieval delay as the source of the latency increase.
+
+FIX AND RECOVERY CHECK
+----------------------
+Disabled the released incident with `python scripts/inject_incident.py --disable` after the challenge batch. Health then reported rag_slow=false. A post-mitigation request returned HTTP 200 in 152 ms with correlation ID req-e3f8dbd5. Its Langfuse trace ID is 3b13811f7d170b5afae8865a6a5ca0d7; retriever duration was 0 ms and generation duration was 152 ms.
+
+PREVENTIVE MEASURE
+------------------
+Keep the HighLatencyP95 alert (>3000 ms P95 for 5 minutes) and its Metrics -> Logs -> Traces runbook active. During an incident, inspect TTFT and response latency, find the request by correlation ID, then compare retrieval and generation span durations. For this injected scenario, the immediate mitigation is to disable rag_slow. The challenge threshold of 2000 ms is a diagnostic threshold; it is distinct from the 3000 ms service SLO/alert threshold.
+
+Data source: local data/logs.jsonl plus Langfuse Observations API v2 in the configured personal project. The release file config/challenge.json is local-only and is not included in this evidence or commit.
