@@ -8,7 +8,7 @@
 - **MSSV:**
 - **Lớp:** K4-L3B
 - **Repository URL:**
-- **Commit SHA cuối:**
+- **Commit SHA source đã kiểm thử:** `564924d` (commit follow-up chỉ thêm evidence và cập nhật report)
 - **Challenge ID:**
 - **Tên project Langfuse cá nhân:** `day13-k4-l3b-<MSSV>`
 
@@ -18,14 +18,22 @@
 
 | Evidence | Đường dẫn |
 |---|---|
-| Pytest cuối | `evidence/09-pytest-cp2.txt` |
-| Log validator | `evidence/07-log-validator-cp2.txt` |
-| Dashboard validator | `evidence/08-dashboard-validator-cp2.txt` |
-| Structured log | `evidence/04-structured-log-cp1.txt` |
-| PII redaction | `evidence/05-pii-redaction-cp1.txt` |
-| Trace list, hierarchy, prompt rollback IDs | `evidence/06-langfuse-trace-audit-cp2.txt` |
-| Dashboard runtime | `evidence/10-dashboard-runtime-cp2.txt` |
-| CP3 incident metric/log/trace | `evidence/15-cp3-challenge-investigation.txt` |
+| Pytest cuối | `evidence/01-pytest.txt` |
+| Log validator | `evidence/02-log-validator.txt` |
+| Dashboard validator | `evidence/03-dashboard-validator.txt` |
+| Structured log (`correlation_id=req-a11ce404`) | `evidence/04-structured-log.txt` |
+| PII redaction (`correlation_id=req-a11ce405`) | `evidence/05-pii-redaction.txt` |
+| Trace list | `evidence/06-trace-list.png` |
+| Trace tree sample (CP2, does not match request 04 ID) | `evidence/07-trace-waterfall.png` |
+| Root metadata audit (text; screenshot missing) | `evidence/08a-root-metadata.txt` |
+| Generation details | `evidence/08b-generation.png` |
+| Prompt versions | `evidence/09-prompt-versions.png` |
+| Promote/rollback trace IDs (text; both screenshots missing) | `evidence/10-prompt-promote-rollback.txt` |
+| Dashboard overview (live UI text capture; PNG missing) | `evidence/11-dashboard-overview.txt` |
+| Incident metric (text; dashboard time series screenshot missing) | `evidence/12-incident-metric.txt` |
+| Incident log | `evidence/13-incident-log.txt` |
+| Incident trace (text audit; screenshot missing) | `evidence/14-incident-trace.txt` |
+| Full CP3 investigation | `evidence/15-cp3-challenge-investigation.txt` |
 
 ## 3. Kết quả kỹ thuật
 
@@ -79,6 +87,8 @@ Challenge file chính thức được giữ local, không commit/push. Báo cáo
 - **Fix action:** Tắt incident bằng `python scripts/inject_incident.py --disable`; request xác minh sau đó hoàn tất trong 152 ms.
 - **Preventive measure:** Giữ HighLatencyP95 >3000 ms / 5 phút và runbook metrics → logs → traces; theo correlation ID để so thời lượng retrieval với generation.
 
+- **Evidence correlation ID tự đặt cho structured-log:** `req-a11ce404`; PII test: `req-a11ce405`. Đây là các request chạy cục bộ qua FastAPI TestClient khi Langfuse exporter chưa có kết nối mạng; không có trace tương ứng trong Langfuse. CP3 trace/log correlation riêng là `req-44cd714c`.
+
 > Gợi ý cách viết ngắn, không thay cho evidence thực tế: "Metric cho thấy `[latency/error/cost/quality]` bất thường trong `[khoảng thời gian]`. Log line `[event]` có `correlation_id=[...]` đại diện cho request bị ảnh hưởng. Trace cùng `correlation_id` cho thấy span `[retrieval/generation/prompt/tool]` có dấu hiệu `[chậm/lỗi/token tăng]`. Root cause là `[nguyên nhân suy ra từ evidence]`. Fix action là `[hành động khôi phục]`; preventive measure là `[alert/runbook/test/guardrail để ngăn tái diễn]`."
 
 ## 8. Giải thích và tự đánh giá
@@ -89,7 +99,7 @@ Challenge file chính thức được giữ local, không commit/push. Báo cáo
 - **Cách hiểu luồng Metrics → Logs → Traces:**
 - **Vai trò của prompt version, token/cost, SLO hoặc rollback trong vận hành LLM:**
 - **Điều quan trọng nhất đã học:**
-- **Hạn chế hoặc phần chưa hoàn thành, nếu có:** Dashboard runtime và Langfuse trace/prompt audit có evidence dạng text; ảnh dashboard chưa có trong evidence.
+- **Hạn chế hoặc phần chưa hoàn thành, nếu có:** Ảnh 06, 07, 08b và 09 lấy từ ảnh Langfuse đã cung cấp; các ảnh cho thấy tài khoản cá nhân nhưng bạn đã xác nhận có thể dùng ảnh cũ. Trace waterfall hiện có là CP2 và không cùng correlation ID với request 04. Chưa có ảnh root metadata 08a, hai trạng thái promote/rollback 10a/10b, dashboard PNG 11, dashboard incident PNG 12, hoặc trace CP3 14. Dashboard runtime, các audit và incident metric hiện có ở dạng text. Theo lựa chọn của học viên, không thay đổi dashboard; latency vẫn là số tổng hợp và chưa có biểu đồ theo thời gian để thể hiện baseline và incident cùng trục.
 
 ## 9. Checklist trước khi nộp
 

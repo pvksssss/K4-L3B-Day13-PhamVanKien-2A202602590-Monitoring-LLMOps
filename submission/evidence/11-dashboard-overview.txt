@@ -1,0 +1,15 @@
+Dashboard runtime observation (live Streamlit UI)
+------------------------------------------------
+URL: http://127.0.0.1:8501/
+Title: K4-L3B Day 13 Monitoring & LLMOps
+Time range: Cửa sổ 60 phút; auto-refresh 30 giây; source data/logs.jsonl
+Observed: 2026-09-30 (live UI via browser accessibility state)
+
+1. Latency percentiles and TTFT: P50 2652 ms; P95 3096 ms; P99 3380 ms; TTFT P95 50 ms; threshold P95 <= 3000 ms.
+2. Request traffic: 13 requests; 0.217 requests/min; threshold >= 1 requests_per_minute.
+3. Error rate and retrieval success: 0.00% error; 100.00% retrieval success; threshold error rate <= 2 percent.
+4. Cost over time: $0.028401 total; per-minute chart; threshold <= $2.5.
+5. Input and output tokens: 447 input; 1,804 output; threshold <= 50,000 tokens.
+6. Quality proxy: mean 0.846 / 1.0; threshold >= 0.75.
+
+This text records the visible live dashboard. It is not a PNG screenshot. A full-resolution screenshot file for evidence 11 was not saved.

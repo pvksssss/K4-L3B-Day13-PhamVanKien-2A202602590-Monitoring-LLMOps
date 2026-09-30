@@ -1,0 +1,11 @@
+Incident trace evidence (text audit)
+-----------------------------------
+Correlation ID: req-44cd714c
+Trace ID: 2e9821ffc0b22941f04c53a1a9f5ac6d
+Root: lab-agent-run (AGENT)
+Slow child: retriever.search (RETRIEVER), 2501 ms
+Generation child: llm.generate (GENERATION), 152 ms
+Root metadata includes correlationId=req-44cd714c.
+Source: Langfuse Observations API v2 audit recorded in evidence/15-cp3-challenge-investigation.txt.
+
+A screenshot of this exact CP3 trace and its metadata was not among the supplied images.

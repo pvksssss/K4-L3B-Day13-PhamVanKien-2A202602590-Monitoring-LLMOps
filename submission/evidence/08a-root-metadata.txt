@@ -1,0 +1,9 @@
+Langfuse root metadata evidence (text audit)
+-------------------------------------------
+Source: evidence/06-langfuse-trace-audit-cp2.txt
+Sample baseline trace ID: 1cb81f87d5f8cdf8a72e94e17bcd0ef8
+Correlation ID: req-bfd8f73c
+Observation: lab-agent-run (AGENT, root)
+Metadata: correlationId=req-bfd8f73c; promptName=day13-chat; promptLabel=baseline; promptVersion=1; promptSource=langfuse
+
+A matching root-observation screenshot (08a) was not available in the supplied images. This text is an API-audit record, not a screenshot.

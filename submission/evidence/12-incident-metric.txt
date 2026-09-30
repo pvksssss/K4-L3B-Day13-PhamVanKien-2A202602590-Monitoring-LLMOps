@@ -1,0 +1,10 @@
+CP3 incident metric sample (UTC)
+---------------------------------
+Challenge: day13-k4-l3b-monitoring-llmops-v1; incident: rag_slow; threshold: 2000 ms.
+Local response logs before official challenge batch: 2026-09-30 05:13:35Z–05:13:46Z, 5/5 were 2680–2859 ms. This earlier run was already slow and is not a clean baseline.
+Official challenge batch: 2026-09-30 05:18:17Z–05:18:28Z, 5/5 were 2652–3451 ms; P50=2652 ms; P95 nearest-rank=3451 ms.
+Recovery: 2026-09-30 05:20:42Z, 152 ms after disabling rag_slow.
+Representative request: req-44cd714c; session k4-l3b-challenge-s02.
+
+Source: data/logs.jsonl and evidence/15-cp3-challenge-investigation.txt.
+Limitation: the current dashboard summarizes latency as P50/P95/P99/TTFT values and does not yet plot per-minute latency. Therefore this text does not satisfy the requested dashboard screenshot with baseline and anomaly on one time axis.

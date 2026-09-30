@@ -1,0 +1,13 @@
+Commands: git log -1 --oneline; .venv313\Scripts\python.exe -m pytest -q (project virtualenv equivalent of python -m pytest -q)
+564924d feat: complete CP3 rag latency investigation
+....................................                                     [100%]
+============================== warnings summary ===============================
+tests/test_dashboard_app.py::test_latency_panel_renders_all_percentiles_and_ttft
+  C:\Users\ADMIN\AI20K\LAB13\K4-L3B-Day13-PhamVanKien-2A202602590-Monitoring-LLMOps\.runtime\python\cpython-3.13.15-windows-x86_64-none\Lib\importlib\metadata\__init__.py:476: DeprecationWarning: Implicit None on return values is deprecated and will raise KeyErrors.
+    return self.metadata['Name']
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+36 passed, 1 warning in 5.65s
+Transient error HTTPSConnectionPool(host='us.cloud.langfuse.com', port=443): Max retries exceeded with url: /api/public/otel/v1/traces (Caused by NewConnectionError("HTTPSConnection(host='us.cloud.langfuse.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions")) encountered while exporting spans batch, retrying in 0.91s.
+Transient error HTTPSConnectionPool(host='us.cloud.langfuse.com', port=443): Max retries exceeded with url: /api/public/otel/v1/traces (Caused by NewConnectionError("HTTPSConnection(host='us.cloud.langfuse.com', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions")) encountered while exporting spans batch, retrying in 1.67s.
+Failed to export spans batch due to timeout, max retries or shutdown.

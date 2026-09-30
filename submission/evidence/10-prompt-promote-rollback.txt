@@ -1,0 +1,10 @@
+Prompt promotion and rollback audit (text)
+-----------------------------------------
+Source: evidence/06-langfuse-trace-audit-cp2.txt
+Prompt: day13-chat
+Baseline: v1, baseline; trace 1cb81f87d5f8cdf8a72e94e17bcd0ef8
+Candidate: v2, candidate; trace c3a4ebc7b14e2bc70f4d4de113a3f0ee
+After promote: production -> v2; trace 10f1e751653c9efad7fc86bfe7bcf3e3
+After rollback: production -> v1; trace e89c0c5a4bf91ee8b3c9e8dfd790bc5a
+
+The supplied prompt-version screenshot shows v2 candidate and v1 production after rollback. Separate screenshots for the post-promotion state and post-rollback state were not both available.
