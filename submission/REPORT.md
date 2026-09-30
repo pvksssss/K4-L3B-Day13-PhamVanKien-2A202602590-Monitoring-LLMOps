@@ -34,6 +34,7 @@
 | Incident log | `evidence/13-incident-log.txt` |
 | Incident trace (slow retrieval and matching `req-44cd714c`) | `evidence/14-incident-trace.jpg`, `evidence/14-incident-trace.txt` |
 | Full CP3 investigation | `evidence/15-cp3-challenge-investigation.txt` |
+| Langfuse Home bổ sung: tổng quan, usage/cost, latency percentiles | `evidence/16a-langfuse-home-overview.png`, `evidence/16b-langfuse-home-usage.png`, `evidence/16c-langfuse-home-latency.png` |
 
 ## 3. Kết quả kỹ thuật
 
@@ -67,7 +68,7 @@
 
 ## 6. Dashboard, SLO và alerts
 
-- **Dashboard và sáu panel:** `dashboard.py` dùng Streamlit và đọc `data/logs.jsonl`: latency/TTFT, traffic, errors/retrieval, cost, tokens và quality. AppTest xác nhận sáu panel render không lỗi; time range 60 phút có 32 request/response.
+- **Dashboard và sáu panel:** `dashboard.py` dùng Streamlit và đọc `data/logs.jsonl`: latency/TTFT, traffic, errors/retrieval, cost, tokens và quality. AppTest xác nhận sáu panel render không lỗi; time range 60 phút có 32 request/response. Ba ảnh Langfuse Home 16a–16c bổ sung thống kê trace, usage/cost và latency percentiles, không phải ảnh dashboard Streamlit sáu panel.
 - **SLO và lý do chọn:** 99.5% request thành công trong ≤3000 ms trong 28 ngày, khớp ngưỡng P95 của dashboard và ưu tiên độ trễ người dùng.
 - **Cách tính error budget:** 0.5%; với 10,000 request cho phép tối đa 50 request không đạt mục tiêu SLO.
 - **Ba alert và runbook tương ứng:** `HighLatencyP95`, `RequestOrRetrievalFailures`, `QualityOrCostGuardrail`; ngưỡng/thời lượng ở `config/alert_rules.yaml`, cách điều tra Metrics → Logs → Traces tại `docs/alerts.md`.
@@ -83,6 +84,7 @@ Challenge file chính thức được giữ local, không commit/push. Báo cáo
 - **Triệu chứng từ metrics:** 5/5 request vượt 2000 ms; P50 2652 ms, P95 3451 ms.
 - **Log line và correlation ID liên quan:** `response_sent`, `req-44cd714c`, 3451 ms; log và các ID khác trong evidence CP3.
 - **Trace ID và span gây ảnh hưởng:** `2e9821ffc0b22941f04c53a1a9f5ac6d`, `retriever.search` span `aac647478c39fd4e`, 2501 ms.
+- **Đối chiếu Langfuse Home:** ảnh 16c hiển thị P95 retrieval 2,50 s, generation 0,15 s và trace 2,65 s trong khoảng 1 ngày; đây là số tổng hợp hỗ trợ kết luận, không thể hiện baseline và incident trên cùng biểu đồ latency theo thời gian.
 - **Root cause:** Incident `rag_slow` chèn `time.sleep(2.5)` vào retrieval; generation khoảng 152 ms.
 - **Fix action:** Tắt incident bằng `python scripts/inject_incident.py --disable`; request xác minh sau đó hoàn tất trong 152 ms.
 - **Preventive measure:** Giữ HighLatencyP95 >3000 ms / 5 phút và runbook metrics → logs → traces; theo correlation ID để so thời lượng retrieval với generation.
@@ -99,7 +101,7 @@ Challenge file chính thức được giữ local, không commit/push. Báo cáo
 - **Cách hiểu luồng Metrics → Logs → Traces:**
 - **Vai trò của prompt version, token/cost, SLO hoặc rollback trong vận hành LLM:**
 - **Điều quan trọng nhất đã học:**
-- **Hạn chế hoặc phần chưa hoàn thành, nếu có:** Ảnh `06-trace-list.png`, `07-trace-waterfall.png`, `08b-generation.png` và `09-prompt-versions.png` do học viên cung cấp trước đó; ảnh 07/08b PNG là CP2 sample. Ảnh JPG mới 07/08a/08b khớp request `req-a11ce404`; ảnh 14 khớp log CP3 `req-44cd714c` và cho thấy retrieval 2,50 giây. Ảnh 10a ghi nhận v2 `production`, nhưng chưa có ảnh 10b sau rollback lần promote này; trạng thái cuối quan sát được vẫn là v2 `production`. Dashboard 11 và incident metric 12 chỉ có text, chưa có PNG. Theo lựa chọn của học viên, không thay đổi dashboard; latency vẫn là số tổng hợp và chưa có biểu đồ theo thời gian thể hiện baseline và incident cùng trục. Generation trong Langfuse hiển thị `prompt_preview`/`answer_preview`, nên ảnh 08b không đáp ứng tiêu chí Input/Output trống.
+- **Hạn chế hoặc phần chưa hoàn thành, nếu có:** Ảnh `06-trace-list.png`, `07-trace-waterfall.png`, `08b-generation.png` và `09-prompt-versions.png` do học viên cung cấp trước đó; ảnh 07/08b PNG là CP2 sample. Ảnh JPG mới 07/08a/08b khớp request `req-a11ce404`; ảnh 14 khớp log CP3 `req-44cd714c` và cho thấy retrieval 2,50 giây. Ảnh 10a ghi nhận v2 `production`, nhưng chưa có ảnh 10b sau rollback lần promote này; trạng thái cuối quan sát được vẫn là v2 `production`. Ba ảnh Langfuse Home 16a–16c là evidence bổ sung, không thay thế ảnh dashboard Streamlit sáu panel 11 hoặc biểu đồ latency incident 12. Hai mục 11/12 vẫn thiếu PNG đúng rubric. Theo lựa chọn của học viên, không thay đổi dashboard; latency vẫn là số tổng hợp và chưa có biểu đồ theo thời gian thể hiện baseline và incident cùng trục. Generation trong Langfuse hiển thị `prompt_preview`/`answer_preview`, nên ảnh 08b không đáp ứng tiêu chí Input/Output trống.
 
 ## 9. Checklist trước khi nộp
 

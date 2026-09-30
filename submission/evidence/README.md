@@ -32,6 +32,7 @@ Có thể dùng `.txt` cho output của tests/validators. Có thể tách dashbo
 - `07-trace-waterfall.jpg`, `08a-root-metadata.jpg`, `08b-generation.jpg`, `08b-generation-preview.jpg`: ảnh mới từ trace `6d434500bee8ad07aa474e87b37043ba`, khớp log `req-a11ce404`. Generation có preview Input/Output trong Langfuse.
 - `10a-prompt-promoted.jpg`: ảnh v2 đang mang `production`; phiên điều khiển trình duyệt dừng trước bước rollback mới. Audit text ghi nhận lần promote/rollback CP2 trước đó, không phải trạng thái sau ảnh này.
 - `14-incident-trace.jpg`: trace CP3 với `req-44cd714c`, span retrieval 2,50 giây.
+- `16a-langfuse-home-overview.png`, `16b-langfuse-home-usage.png`, `16c-langfuse-home-latency.png`: ảnh học viên cung cấp từ Langfuse Home, hiển thị 29 traces, 87 observations, khoảng $0.06 cost và bảng P95 retrieval 2,50 s/generation 0,15 s. Đây là số tổng hợp bổ sung, không phải dashboard Streamlit sáu panel hoặc biểu đồ latency trước/sau incident.
 - `07-trace-waterfall-audit.txt`, `08a-root-metadata.txt`, `08b-generation-audit.txt`: CLI audit cho trace mới khớp `req-a11ce404` (`6d434500bee8ad07aa474e87b37043ba`).
 - `10-prompt-promote-rollback.txt`, `11-dashboard-overview.txt`, `12-incident-metric.txt`, `13-incident-log.txt`, `14-incident-trace.txt`, `15-cp3-challenge-investigation.txt`: output/audit dạng text.
 - Chưa có ảnh `10b`, `11` và `12` đúng như rubric yêu cầu. Dashboard hiện chưa có time-series latency panel; evidence metric ghi rõ các số liệu và giới hạn, không giả làm ảnh chụp.
