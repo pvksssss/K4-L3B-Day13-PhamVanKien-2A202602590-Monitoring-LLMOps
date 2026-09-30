@@ -18,32 +18,30 @@
 
 | Evidence | Đường dẫn |
 |---|---|
-| Pytest cuối | `evidence/01-pytest-cp1.txt` |
-| Log validator | `evidence/02-log-validator-cp1.txt` |
-| Dashboard validator | `evidence/03-dashboard-validator.png` |
+| Pytest cuối | `evidence/09-pytest-cp2.txt` |
+| Log validator | `evidence/07-log-validator-cp2.txt` |
+| Dashboard validator | `evidence/08-dashboard-validator-cp2.txt` |
 | Structured log | `evidence/04-structured-log-cp1.txt` |
 | PII redaction | `evidence/05-pii-redaction-cp1.txt` |
-| Trace list | `evidence/06-trace-list.png` |
-| Trace waterfall | `evidence/07-trace-waterfall.png` |
-| Trace metadata | `evidence/08-trace-metadata.png` |
-| Prompt versions | `evidence/09-prompt-versions.png` |
-| Prompt rollback | `evidence/10-prompt-rollback.png` |
-| Dashboard runtime | `evidence/11-dashboard-overview.png` |
-| Incident metric | `evidence/12-incident-metric.png` |
-| Incident log | `evidence/13-incident-log.png` |
-| Incident trace | `evidence/14-incident-trace.png` |
+| Trace list, hierarchy, prompt rollback IDs | `evidence/06-langfuse-trace-audit-cp2.txt` |
+| Trace waterfall | `evidence/11-trace-waterfall-cp2.png` |
+| Sessions và users | `evidence/12-sessions-cp2.png`, `evidence/13-users-cp2.png` |
+| Prompt versions / rollback | `evidence/14-prompt-rollback-cp2.png` |
+| Prompt versions / rollback screenshots | Chờ người dùng đồng ý chụp ảnh |
+| Dashboard runtime | `evidence/10-dashboard-runtime-cp2.txt` |
+| CP3 incident metric/log/trace | Sẽ thực hiện sau checkpoint CP2 từ `config/challenge.json` |
 
 ## 3. Kết quả kỹ thuật
 
 | Nội dung | Baseline | Kết quả cuối | Nhận xét |
 |---|---|---|---|
-| `validate_logs.py` | Chưa ghi nhận | **100/100** | 20 records, 10 correlation IDs, thiếu field: 0, PII leak: 0 |
-| `validate_dashboard.py` | | | |
-| `pytest` | Chưa ghi nhận | **26 passed** | Chạy trên Python 3.13.15 |
-| Số traces hợp lệ | | | |
-| Số PII leak | Chưa ghi nhận | **0** | Theo log validator sau CP1 |
-| Latency P95 / TTFT P95 | | | |
-| Retrieval success rate | | | |
+| `validate_logs.py` | CP1: 20 records | **100/100** | 90 records, 42 correlation IDs, thiếu field/enrichment: 0, PII leak: 0 |
+| `validate_dashboard.py` | Chưa dựng runtime | **6/6 panel** | Contract validator pass |
+| `pytest` | CP1: 26 passed | **36 passed** | Python 3.13.15 |
+| Số traces hợp lệ | Chưa có | **22 traces / 66 observations** | 22 AGENT, 22 RETRIEVER, 22 GENERATION |
+| Số PII leak | CP1: 0 | **0** | Log validator và audit 66 Langfuse observations |
+| Latency P95 / TTFT P95 | Chưa ghi nhận | **933.1 ms / 50 ms** | Từ 32 response logs trong cửa sổ 60 phút |
+| Retrieval success rate | Chưa ghi nhận | **100%** | Event `tool_success` trong log |
 
 ## 4. Logging và PII
 
@@ -54,25 +52,27 @@
 
 ## 5. Tracing và prompt versioning
 
-- **Cách xác nhận traces do chính tôi tạo trong project cá nhân:**
-- **Cấu trúc root/retrieval/generation observations:**
-- **Cách nối trace với log:**
-- **Prompt name:**
-- **Version/label baseline:**
-- **Version/label candidate:**
-- **Trace ID của mỗi version:**
-- **Cách promote và rollback `production`:**
+- **Cách xác nhận traces do chính tôi tạo trong project đã cấu hình ở `.env`:** Dùng Langfuse CLI/API để đọc 22 trace mới, mỗi trace có một agent root cùng retriever và generation child. Không đưa credential vào log/repository.
+- **Cấu trúc root/retrieval/generation observations:** trace `day13-agent-request` có root observation `lab-agent-run` (AGENT), cùng hai child `retriever.search` (RETRIEVER) và `llm.generate` (GENERATION); sample trace đã kiểm tra có input/output preview scrub, model, prompt version, token usage, estimated cost và correlation ID.
+- **Cách nối trace với log:** `correlationId` trong trace metadata trùng `correlation_id` trong JSONL.
+- **Prompt name:** `day13-chat`.
+- **Version/label baseline:** version 1, labels `baseline` và `production` sau rollback.
+- **Version/label candidate:** version 2, label `candidate`; đã thử gán `production` rồi rollback.
+- **Trace ID của baseline/candidate/promote/rollback:** `1cb81f87d5f8cdf8a72e94e17bcd0ef8` / `c3a4ebc7b14e2bc70f4d4de113a3f0ee` / `10f1e751653c9efad7fc86bfe7bcf3e3` / `e89c0c5a4bf91ee8b3c9e8dfd790bc5a`. Correlation IDs và version đối chiếu tại `evidence/06-langfuse-trace-audit-cp2.txt`.
+- **Cách promote và rollback `production`:** gán label `production` cho version 2, tạo trace xác nhận promptVersion 2; chuyển label về version 1, khởi động client mới để tránh prompt cache cũ và xác nhận trace rollback promptVersion 1.
 
 ## 6. Dashboard, SLO và alerts
 
-- **Dashboard và sáu panel:**
-- **SLO và lý do chọn:**
-- **Cách tính error budget:**
-- **Ba alert và runbook tương ứng:**
+- **Dashboard và sáu panel:** `dashboard.py` dùng Streamlit và đọc `data/logs.jsonl`: latency/TTFT, traffic, errors/retrieval, cost, tokens và quality. AppTest xác nhận sáu panel render không lỗi; time range 60 phút có 32 request/response.
+- **SLO và lý do chọn:** 99.5% request thành công trong ≤3000 ms trong 28 ngày, khớp ngưỡng P95 của dashboard và ưu tiên độ trễ người dùng.
+- **Cách tính error budget:** 0.5%; với 10,000 request cho phép tối đa 50 request không đạt mục tiêu SLO.
+- **Ba alert và runbook tương ứng:** `HighLatencyP95`, `RequestOrRetrievalFailures`, `QualityOrCostGuardrail`; ngưỡng/thời lượng ở `config/alert_rules.yaml`, cách điều tra Metrics → Logs → Traces tại `docs/alerts.md`.
 
 > Ví dụ cách viết error budget: "SLO 99.5% trong 28 ngày nghĩa là error budget 0.5%. Nếu workload có 10,000 request thì tối đa 50 request được phép lỗi hoặc chậm hơn ngưỡng SLO."
 
 ## 7. Điều tra challenge
+
+Challenge chính thức đã có tại `config/challenge.json`. Phần điều tra CP3 được thực hiện sau checkpoint CP2; challenge file được giữ nguyên theo hướng dẫn repository.
 
 - **Challenge ID:**
 - **Khoảng thời gian điều tra:**
@@ -93,7 +93,7 @@
 - **Cách hiểu luồng Metrics → Logs → Traces:**
 - **Vai trò của prompt version, token/cost, SLO hoặc rollback trong vận hành LLM:**
 - **Điều quan trọng nhất đã học:**
-- **Hạn chế hoặc phần chưa hoàn thành, nếu có:**
+- **Hạn chế hoặc phần chưa hoàn thành, nếu có:** Dashboard được kiểm chứng qua AppTest và runtime evidence dạng text; ảnh trace waterfall, sessions/users và prompt rollback do người dùng cung cấp. Ảnh dashboard chưa được cung cấp.
 
 ## 9. Checklist trước khi nộp
 

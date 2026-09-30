@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from typing import Any
 
 try:
@@ -24,6 +24,9 @@ except ImportError:  # pragma: no cover - chỉ dùng khi chưa cài requirement
         def update_current_generation(self, **kwargs: Any) -> None:
             return None
 
+        def flush(self) -> None:
+            return None
+
     def get_client():
         return _DummyClient()
 
@@ -34,6 +37,27 @@ except ImportError:  # pragma: no cover - chỉ dùng khi chưa cài requirement
 
 def get_langfuse_client():
     return get_client()
+
+
+def flush_langfuse() -> None:
+    get_langfuse_client().flush()
+
+
+@contextmanager
+def observation_context(client: Any, **kwargs: Any):
+    """Start an SDK observation, or provide a no-op when tracing is unavailable."""
+    start = getattr(client, "start_as_current_observation", None)
+    if not callable(start):
+        with nullcontext(_NoopObservation()) as observation:
+            yield observation
+        return
+    with start(**kwargs) as observation:
+        yield observation
+
+
+class _NoopObservation:
+    def update(self, **kwargs: Any) -> None:
+        return None
 
 
 def tracing_enabled() -> bool:

@@ -1,0 +1,5 @@
+2026-09-30 11:45:10.140 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+Streamlit AppTest exceptions: 0
+Rendered panels: Latency percentiles and TTFT, Request traffic, Error rate and retrieval success, Cost over time, Input and output tokens, Quality proxy
+Latency metrics: P50, P95, P99, TTFT P95
+Metric widgets: 12

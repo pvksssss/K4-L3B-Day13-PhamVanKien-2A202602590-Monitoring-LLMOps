@@ -1,18 +1,24 @@
 import argparse
 import concurrent.futures
 import json
+import os
 import sys
 import time
 from pathlib import Path
 
 import httpx
+from dotenv import load_dotenv
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
+load_dotenv(REPO_ROOT / ".env")
+if not os.getenv("LANGFUSE_HOST") and os.getenv("LANGFUSE_BASE_URL"):
+    os.environ["LANGFUSE_HOST"] = os.environ["LANGFUSE_BASE_URL"]
 
 from app.challenge import load_challenge, ordered_queries
 from app.cli import configure_utf8_stdio
+from app.tracing import flush_langfuse
 
 BASE_URL = "http://127.0.0.1:8000"
 QUERIES = Path("data/sample_queries.jsonl")
@@ -58,6 +64,7 @@ def main() -> None:
         else:
             for payload in payloads:
                 send_request(client, payload)
+    flush_langfuse()
 
 
 if __name__ == "__main__":

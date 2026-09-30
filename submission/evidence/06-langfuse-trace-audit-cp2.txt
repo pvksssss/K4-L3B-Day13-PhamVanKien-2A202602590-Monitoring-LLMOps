@@ -1,0 +1,17 @@
+Langfuse CP2 trace audit
+Project prompt: day13-chat
+Observation count: 66
+Unique trace count: 22
+Observation types: {"AGENT": 22, "GENERATION": 22, "RETRIEVER": 22}
+Generation prompt versions: {"1": 11, "2": 11}
+PII detector types with hits: 0
+baseline sample: prompt_version=1 correlation_id=req-bfd8f73c trace_id=1cb81f87d5f8cdf8a72e94e17bcd0ef8
+candidate sample: prompt_version=2 correlation_id=req-ff9c9eb4 trace_id=c3a4ebc7b14e2bc70f4d4de113a3f0ee
+production promoted: prompt_version=2 correlation_id=req-393b74de trace_id=10f1e751653c9efad7fc86bfe7bcf3e3
+production rollback: prompt_version=1 correlation_id=req-4d194ef0 trace_id=e89c0c5a4bf91ee8b3c9e8dfd790bc5a
+
+Sample trace field audit (Langfuse observations API):
+root: type=AGENT name=lab-agent-run is_root=true trace_name=day13-agent-request user_id=2055254ee30a session_id=s01
+root_metadata: correlationId=req-bfd8f73c feature=qa model=claude-sonnet-4-5 promptName=day13-chat promptLabel=baseline promptVersion=1 promptSource=langfuse
+retriever: type=RETRIEVER name=retriever.search parent=true; input/output did not contain the sample email
+generation: type=GENERATION name=llm.generate model=claude-sonnet-4-5 promptVersion=1 input_tokens=37 output_tokens=93 cost_usd=0.001506; input/output did not contain the sample email
