@@ -24,9 +24,9 @@
 | Structured log (`correlation_id=req-a11ce404`) | `evidence/04-structured-log.txt` |
 | PII redaction (`correlation_id=req-a11ce405`) | `evidence/05-pii-redaction.txt` |
 | Trace list | `evidence/06-trace-list.png` |
-| Trace tree sample (CP2, does not match request 04 ID) | `evidence/07-trace-waterfall.png` |
-| Root metadata audit (text; screenshot missing) | `evidence/08a-root-metadata.txt` |
-| Generation details | `evidence/08b-generation.png` |
+| Trace tree screenshot (CP2 sample) and matching request-04 trace audit | `evidence/07-trace-waterfall.png`, `evidence/07-trace-waterfall-audit.txt` |
+| Root metadata audit for request 04 (text; screenshot missing) | `evidence/08a-root-metadata.txt` |
+| Generation screenshot (CP2 sample) and matching request-04 audit | `evidence/08b-generation.png`, `evidence/08b-generation-audit.txt` |
 | Prompt versions | `evidence/09-prompt-versions.png` |
 | Promote/rollback trace IDs (text; both screenshots missing) | `evidence/10-prompt-promote-rollback.txt` |
 | Dashboard overview (live UI text capture; PNG missing) | `evidence/11-dashboard-overview.txt` |
@@ -87,7 +87,7 @@ Challenge file chính thức được giữ local, không commit/push. Báo cáo
 - **Fix action:** Tắt incident bằng `python scripts/inject_incident.py --disable`; request xác minh sau đó hoàn tất trong 152 ms.
 - **Preventive measure:** Giữ HighLatencyP95 >3000 ms / 5 phút và runbook metrics → logs → traces; theo correlation ID để so thời lượng retrieval với generation.
 
-- **Evidence correlation ID tự đặt cho structured-log:** `req-a11ce404`; PII test: `req-a11ce405`. Đây là các request chạy cục bộ qua FastAPI TestClient khi Langfuse exporter chưa có kết nối mạng; không có trace tương ứng trong Langfuse. CP3 trace/log correlation riêng là `req-44cd714c`.
+- **Evidence correlation ID tự đặt cho structured-log:** `req-a11ce404`; PII test: `req-a11ce405`. Request `req-a11ce404` đã chạy qua API có `.env` và được xác nhận trên Langfuse: trace `6d434500bee8ad07aa474e87b37043ba`; metadata gốc và generation audit nằm trong evidence 07/08. Request PII `req-a11ce405` chỉ chạy cục bộ để kiểm tra scrub, không gửi sang Langfuse. CP3 trace/log correlation riêng là `req-44cd714c`.
 
 > Gợi ý cách viết ngắn, không thay cho evidence thực tế: "Metric cho thấy `[latency/error/cost/quality]` bất thường trong `[khoảng thời gian]`. Log line `[event]` có `correlation_id=[...]` đại diện cho request bị ảnh hưởng. Trace cùng `correlation_id` cho thấy span `[retrieval/generation/prompt/tool]` có dấu hiệu `[chậm/lỗi/token tăng]`. Root cause là `[nguyên nhân suy ra từ evidence]`. Fix action là `[hành động khôi phục]`; preventive measure là `[alert/runbook/test/guardrail để ngăn tái diễn]`."
 
@@ -99,7 +99,7 @@ Challenge file chính thức được giữ local, không commit/push. Báo cáo
 - **Cách hiểu luồng Metrics → Logs → Traces:**
 - **Vai trò của prompt version, token/cost, SLO hoặc rollback trong vận hành LLM:**
 - **Điều quan trọng nhất đã học:**
-- **Hạn chế hoặc phần chưa hoàn thành, nếu có:** Ảnh 06, 07, 08b và 09 lấy từ ảnh Langfuse đã cung cấp; các ảnh cho thấy tài khoản cá nhân nhưng bạn đã xác nhận có thể dùng ảnh cũ. Trace waterfall hiện có là CP2 và không cùng correlation ID với request 04. Chưa có ảnh root metadata 08a, hai trạng thái promote/rollback 10a/10b, dashboard PNG 11, dashboard incident PNG 12, hoặc trace CP3 14. Dashboard runtime, các audit và incident metric hiện có ở dạng text. Theo lựa chọn của học viên, không thay đổi dashboard; latency vẫn là số tổng hợp và chưa có biểu đồ theo thời gian để thể hiện baseline và incident cùng trục.
+- **Hạn chế hoặc phần chưa hoàn thành, nếu có:** Ảnh 06, 07, 08b và 09 lấy từ ảnh Langfuse đã cung cấp; các ảnh cho thấy tài khoản cá nhân nhưng bạn đã xác nhận có thể dùng ảnh cũ. Ảnh waterfall và generation là CP2 sample, không trùng trace request 04; trace đúng đã được kiểm tra bằng CLI và ghi tại `07-trace-waterfall-audit.txt`/`08b-generation-audit.txt`. Chưa có ảnh root metadata 08a, hai trạng thái promote/rollback 10a/10b, dashboard PNG 11, dashboard incident PNG 12, hoặc trace CP3 14. Dashboard runtime, các audit và incident metric hiện có ở dạng text. Theo lựa chọn của học viên, không thay đổi dashboard; latency vẫn là số tổng hợp và chưa có biểu đồ theo thời gian để thể hiện baseline và incident cùng trục.
 
 ## 9. Checklist trước khi nộp
 

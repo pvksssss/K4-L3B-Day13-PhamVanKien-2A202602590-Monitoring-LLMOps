@@ -1,0 +1,11 @@
+Langfuse generation audit
+-------------------------
+Correlation ID: req-a11ce404
+Trace ID: 6d434500bee8ad07aa474e87b37043ba
+Generation: llm.generate (GENERATION), span 915e2a7bb88d7da6, parent f40ff98c35cde794, 151 ms.
+Model: claude-sonnet-4-5
+Prompt: day13-chat v1; root metadata label=production; source=langfuse
+Usage: 28 input tokens; 158 output tokens; 186 total tokens
+Cost: $0.002454
+
+Source: Langfuse CLI observations list. This text refers to req-a11ce404. The supplied generation PNG is an older CP2 screenshot.

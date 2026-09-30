@@ -1,0 +1,10 @@
+Langfuse trace waterfall audit
+------------------------------
+Correlation ID: req-a11ce404
+Trace ID: 6d434500bee8ad07aa474e87b37043ba
+Trace name: day13-agent-request
+Root: lab-agent-run (AGENT), span f40ff98c35cde794, 781 ms, no parent.
+  Child: retriever.search (RETRIEVER), span ccb7a9cc848d9021, 1 ms; parent f40ff98c35cde794.
+  Child: llm.generate (GENERATION), span 915e2a7bb88d7da6, 151 ms; parent f40ff98c35cde794.
+
+Source: Langfuse CLI observations list, filtered by session_id=s-evidence-04 and start time after 2026-09-30T05:59:00Z. This is the matching live trace audit in text. The supplied PNG waterfall is a different CP2 trace.

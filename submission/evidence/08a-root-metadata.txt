@@ -1,9 +1,9 @@
-Langfuse root metadata evidence (text audit)
--------------------------------------------
-Source: evidence/06-langfuse-trace-audit-cp2.txt
-Sample baseline trace ID: 1cb81f87d5f8cdf8a72e94e17bcd0ef8
-Correlation ID: req-bfd8f73c
-Observation: lab-agent-run (AGENT, root)
-Metadata: correlationId=req-bfd8f73c; promptName=day13-chat; promptLabel=baseline; promptVersion=1; promptSource=langfuse
+Langfuse root metadata audit
+----------------------------
+Correlation ID: req-a11ce404
+Trace ID: 6d434500bee8ad07aa474e87b37043ba
+Root observation: lab-agent-run (AGENT), span f40ff98c35cde794.
+Metadata: correlationId=req-a11ce404; feature=qa; model=claude-sonnet-4-5; promptName=day13-chat; promptLabel=production; promptVersion=1; promptSource=langfuse.
+Parent: none. Time: 2026-09-30T06:00:43.869Z–2026-09-30T06:00:44.650Z.
 
-A matching root-observation screenshot (08a) was not available in the supplied images. This text is an API-audit record, not a screenshot.
+Source: Langfuse CLI observations list. Screenshot 08a of this exact root metadata was not available because the integrated browser session is signed out.
