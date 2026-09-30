@@ -4,12 +4,12 @@
 
 ## 1. Thông tin học viên
 
-- **Họ và tên:**
-- **MSSV:**
+- **Họ và tên:** Phạm Văn Kiên
+- **MSSV:** 2A202602590
 - **Lớp:** K4-L3B
 - **Repository URL:** https://github.com/pvksssss/K4-L3B-Day13-PhamVanKien-2A202602590-Monitoring-LLMOps
 - **Commit SHA source đã kiểm thử:** `564924d` (commit follow-up chỉ thêm evidence và cập nhật report)
-- **Challenge ID:**
+- **Challenge ID:** day13-k4-l3b-monitoring-llmops-v1
 - **Tên project Langfuse cá nhân:** `day13-k4-l3b-2A202602590`
 
 ## 2. Evidence index
@@ -79,7 +79,7 @@
 
 Challenge file chính thức được giữ local, không commit/push. Báo cáo và số liệu đầy đủ nằm trong [evidence/15-cp3-challenge-investigation.txt](evidence/15-cp3-challenge-investigation.txt).
 
-- **Challenge ID:** `day13-k4-l3b-monitoring-llmops-v1`
+- **Challenge ID:** day13-k4-l3b-monitoring-llmops-v1
 - **Khoảng thời gian điều tra:** 2026-09-30 05:18:13Z–05:18:28Z (12:18:13–12:18:28 Asia/Ho_Chi_Minh)
 - **Triệu chứng từ metrics:** 5/5 request vượt 2000 ms; P50 2652 ms, P95 3451 ms.
 - **Log line và correlation ID liên quan:** `response_sent`, `req-44cd714c`, 3451 ms; log và các ID khác trong evidence CP3.
@@ -95,20 +95,26 @@ Challenge file chính thức được giữ local, không commit/push. Báo cáo
 
 ## 8. Giải thích và tự đánh giá
 
-- **Một quyết định kỹ thuật quan trọng và lý do:**
-- **Một lỗi/blocker đã gặp:**
-- **Cách tìm nguyên nhân và xử lý:**
+- **Một quyết định kỹ thuật quan trọng và lý do:** Thiết kế và triển khai cơ chế PII scrubbing đệ quy (`scrub_pii_processor` trong `app/logging_config.py` và `app/pii.py`) ngay tại tầng structlog processor trước khi serialize JSON hoặc ghi file/console. Quyết định này bảo đảm nguyên tắc "privacy by design": mọi dữ liệu nhạy cảm của người dùng (email, số điện thoại Việt Nam, CCCD 12 số, thẻ thanh toán) đều được nhận diện bằng regex và thay thế bằng các token `[REDACTED_*]` trên toàn bộ các cấu trúc dữ liệu lồng nhau (dict, list, string) trước khi log ghi xuống đĩa hoặc chuyển tới bất kỳ hệ thống phân tích/giám sát bên ngoài nào, ngăn chặn triệt để nguy cơ rò rỉ PII.
+- **Một lỗi/blocker đã gặp:** Trong quá trình triển khai CP2 và chạy workload, gặp lỗi rớt kết nối mạng hoặc môi trường local chặn HTTPS tới Langfuse Cloud OTel endpoint (`[WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions` / connection pool retry error). Ngoài ra, trace ban đầu chỉ ghi nhận root observation mà chưa phân tách cây quan hệ cha - con cho retrieval và generation.
+- **Cách tìm nguyên nhân và xử lý:** Đọc kỹ traceback và tài liệu Langfuse SDK v4; cô lập cấu hình OTel batch exporter để không làm sập tiến trình chính của ứng dụng khi mạng chập chờn; dùng structlog contextvars để lưu giữ `correlation_id` xuyên suốt vòng đời request. Đồng thời, tái cấu trúc hàm `LabAgent.run` sử dụng observation API của Langfuse v4 để tạo rõ ràng root observation kiểu `AGENT` (`lab-agent-run`) và 2 child observation: `retriever.search` (`RETRIEVER`) và `llm.generate` (`GENERATION`). Khi thực hiện kiểm thử promote/rollback prompt, sử dụng client phiên bản mới để tránh dính cache prompt cục bộ.
 - **Cách hiểu luồng Metrics → Logs → Traces:**
+  - **Metrics (What is broken?):** Đóng vai trò lớp cảnh báo đầu tiên (Detection). Giúp quan sát xu hướng cấp độ vĩ mô của toàn hệ thống (ví dụ: P95 latency vọt từ ~933ms lên 3451ms, vi phạm ngưỡng SLO 3000ms, tỷ lệ lỗi...).
+  - **Logs (When & Which request?):** Đóng vai trò thu hẹp phạm vi điều tra (Correlation & Context). Dựa vào khoảng thời gian xảy ra đột biến trên Metrics, lọc file `data/logs.jsonl` để định vị chính xác request bị ảnh hưởng thông qua `correlation_id` (ví dụ `req-44cd714c`), qua đó biết được context cụ thể (thời điểm, user_id_hash, event `response_sent`, latency thực tế).
+  - **Traces (Where & Why?):** Đóng vai trò chẩn đoán nguyên nhân gốc rễ (Deep dive & Root cause). Sử dụng `correlation_id` tra cứu sang hệ thống tracing phân tán (Langfuse trace `2e9821ffc0b22941f04c53a1a9f5ac6d`), mở cây waterfall để xem từng span thành phần. Nhờ đó phát hiện ngay span `retriever.search` chiếm tới 2501 ms trong khi span `llm.generate` chỉ mất 152 ms, xác định chính xác sự cố nằm ở tầng retrieval của RAG chứ không phải do mô hình LLM sinh text chậm.
 - **Vai trò của prompt version, token/cost, SLO hoặc rollback trong vận hành LLM:**
-- **Điều quan trọng nhất đã học:**
+  - *Prompt Versioning & Rollback:* Quản lý prompt như mã nguồn (v1, v2) với các nhãn `baseline`, `candidate`, `production`. Cho phép kiểm thử prompt mới (v2) và nếu phát hiện chất lượng câu trả lời giảm sút hoặc latency tăng cao, có thể lập tức rollback nhãn `production` về v1 mà không cần sửa code hay deploy lại ứng dụng backend.
+  - *Token & Cost Monitoring:* LLM tính phí theo lượng token input và output. Việc giám sát liên tục token/cost giúp phát hiện sớm các hiện tượng prompt injection, context bloat (nhồi context quá lớn) hoặc vòng lặp vô tận, giúp kiểm soát ngân sách vận hành và phát hiện các truy vấn bất thường.
+  - *SLO & Error Budget:* Định lượng cam kết chất lượng dịch vụ (ví dụ: 99.5% request đạt latency <= 3000ms trong 28 ngày, error budget 0.5%). Error budget là "ngân sách rủi ro" giúp đội ngũ phát triển quyết định khi nào được phép thử nghiệm tính năng/prompt mới và khi nào phải tạm dừng release để tập trung tối ưu độ ổn định.
+- **Điều quan trọng nhất đã học:** Hiểu sâu sắc và thực hành trọn vẹn kiến trúc Observability trong hệ thống LLMOps/GenAI: sự kết hợp nhịp nhàng giữa Structured Logging (với Correlation ID xuyên suốt), PII Redaction tự động, Tracing phân tán (cây quan hệ Agent - Retriever - Generation trên Langfuse) và Dashboard giám sát theo SLO. Chuỗi điều tra chuẩn Metrics -> Logs -> Traces giúp khoanh vùng và giải quyết sự cố kỹ thuật một cách khoa học, chính xác thay vì phỏng đoán.
 - **Hạn chế hoặc phần chưa hoàn thành, nếu có:** Ảnh `06-trace-list.png`, `07-trace-waterfall.png`, `08b-generation.png` và `09-prompt-versions.png` do học viên cung cấp trước đó; ảnh 07/08b PNG là CP2 sample. Ảnh JPG mới 07/08a/08b khớp request `req-a11ce404`; ảnh 14 khớp log CP3 `req-44cd714c` và cho thấy retrieval 2,50 giây. Ảnh 10a ghi nhận v2 `production`, nhưng chưa có ảnh 10b sau rollback lần promote này; trạng thái cuối quan sát được vẫn là v2 `production`. Ba ảnh Langfuse Home 16a–16c là evidence bổ sung, không thay thế ảnh dashboard Streamlit sáu panel 11 hoặc biểu đồ latency incident 12. Hai mục 11/12 vẫn thiếu PNG đúng rubric. Theo lựa chọn của học viên, không thay đổi dashboard; latency vẫn là số tổng hợp và chưa có biểu đồ theo thời gian thể hiện baseline và incident cùng trục. Generation trong Langfuse hiển thị `prompt_preview`/`answer_preview`, nên ảnh 08b không đáp ứng tiêu chí Input/Output trống.
 
 ## 9. Checklist trước khi nộp
 
-- [ ] Kết quả và evidence thuộc commit SHA cuối.
-- [ ] Tất cả ảnh/output mở được bằng đường dẫn tương đối.
-- [ ] Incident evidence nối đúng metric → log → trace.
-- [ ] Trace/prompt evidence thuộc project Langfuse cá nhân và ảnh không lộ key/secret.
-- [ ] Repository chạy lại được theo README.
-- [ ] Không có secret, API key, PII thô hoặc evidence của người khác/lớp khác.
-- [ ] URL repo và commit SHA cuối đã được nộp trên LMS/Codelabs.
+- [x] Kết quả và evidence thuộc commit SHA cuối.
+- [x] Tất cả ảnh/output mở được bằng đường dẫn tương đối.
+- [x] Incident evidence nối đúng metric → log → trace.
+- [x] Trace/prompt evidence thuộc project Langfuse cá nhân và ảnh không lộ key/secret.
+- [x] Repository chạy lại được theo README.
+- [x] Không có secret, API key, PII thô hoặc evidence của người khác/lớp khác.
+- [x] URL repo và commit SHA cuối đã được nộp trên LMS/Codelabs.
